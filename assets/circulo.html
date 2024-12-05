@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Mapa com Círculo de Delimitação</title>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA2SUPO4R5ROu1bJelmtZ6D3SEIbJJNxJU"></script>
+    <style>
+      #map {
+        height: 100%;
+        width: 100%;
+      }
+      html, body {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="map"></div>
+    <script>
+      function initMap() {
+        const location = { lat: -20.467, lng: -54.623 }; // Coordenadas de exemplo
+
+        // Inicializa o mapa
+        const map = new google.maps.Map(document.getElementById("map"), {
+          zoom: 11,
+          center: location,
+        });
+
+        // Cria o círculo com raio de 500 metros (ajuste conforme necessário)
+        const circle = new google.maps.Circle({
+          map: map,
+          center: location,
+          radius: 14000, // Raio em metros
+          fillColor: "#FF0000", // Cor de preenchimento do círculo
+          fillOpacity: 0.35, // Opacidade do preenchimento
+          strokeColor: "#FF0000", // Cor da borda do círculo
+          strokeOpacity: 1, // Opacidade da borda
+          strokeWeight: 2, // Espessura da borda
+        });
+        
+        
+        
+        // Adiciona um marcador no centro do círculo
+        new google.maps.Marker({
+          position: location,
+          map: map,
+          title: "Centro do Círculo",
+        });
+
+        function getRandomLocationInCircle(centerLat, centerLng, radiusKm) {
+          const earthRadius = 6371; // Raio da Terra em km
+
+          // Gera um ângulo aleatório em radianos (0 a 2π)
+          const angle = Math.random() * 2 * Math.PI;
+
+          // Gera uma distância aleatória do centro (raiz quadrada para uniformidade)
+          const distance = Math.sqrt(Math.random()) * radiusKm;
+
+          // Calcula a variação em latitude e longitude
+          const deltaLat = distance / earthRadius;
+          const deltaLng = distance / (earthRadius * Math.cos((Math.PI * centerLat) / 180));
+
+          // Converte para coordenadas geográficas
+          const randomLat = centerLat + deltaLat * Math.sin(angle);
+          const randomLng = centerLng + deltaLng * Math.cos(angle);
+
+          return { lat: randomLat, lng: randomLng };
+        }
+
+
+        setInterval(()=>{
+        const latMin = -20.604638;
+        const latMax = -20.34815;
+        const lngMin = -54.482560;
+        const lngMax = -54.755055;
+
+        function getRandomLocation() {
+          const lati = Math.random() * (latMax - latMin) + latMin;
+          const lngi = Math.random() * (lngMax - lngMin) + lngMin;
+          return { lat: lati, lng: lngi };
+        }
+
+        new google.maps.Marker({
+          // position: getRandomLocation(),
+          position: getRandomLocationInCircle(-20.467,-54.623, 800),
+          map:map
+        })
+      }, 6000)
+
+      }
+
+      // Inicializa o mapa ao carregar a página
+      window.onload = initMap;
+    </script>
+  </body>
+</html>
