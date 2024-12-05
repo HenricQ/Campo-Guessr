@@ -1,31 +1,25 @@
 function initMap() {
     const streetViewService = new google.maps.StreetViewService();
 
-    // Função para gerar localização aleatória dentro de um círculo
+
     function getRandomLocationInCircle(centerLat, centerLng, radiusKm) {
-        const earthRadius = 6371; // Raio da Terra em km
-
-        // Ângulo aleatório
+        const earthRadius = 6371;
         const angle = Math.random() * 2 * Math.PI;
+  
 
-        // Distância aleatória no raio do círculo
         const distance = Math.sqrt(Math.random()) * radiusKm;
-
-        // Calcula variação em latitude e longitude
         const deltaLat = distance / earthRadius;
         const deltaLng = distance / (earthRadius * Math.cos((Math.PI * centerLat) / 180));
 
-        // Coordenadas resultantes
         const randomLat = centerLat + deltaLat * Math.sin(angle);
         const randomLng = centerLng + deltaLng * Math.cos(angle);
 
         return { lat: randomLat, lng: randomLng };
     }
 
-    // Função para encontrar uma localização válida no Street View
-    function findValidStreetViewLocation(callback) {
-        const location = getRandomLocationInCircle(-20.467, -54.623, 800); // Raio de 14 km
 
+    function findValidStreetViewLocation(callback) {
+        const location = getRandomLocationInCircle(-20.467, -54.623, 800);
         streetViewService.getPanorama(
             { location: location, radius: 50 }, // Busca uma visão a até 50m
             (data, status) => {
@@ -39,11 +33,9 @@ function initMap() {
         );
     }
 
-    // Busca uma localização válida e inicializa o Street View
     findValidStreetViewLocation((streetViewLocation) => {
         console.log("Coordenada do Street View encontrada:", streetViewLocation);
 
-        // Inicializa o Street View
         const streetView = new google.maps.StreetViewPanorama(
             document.getElementById("street-view"),
             {
@@ -68,48 +60,41 @@ function initMap() {
       const miniMapCenter = { lat: -20.467, lng: -54.623 }; // Centro fixo
       const map = new google.maps.Map(document.getElementById("map"), {
         zoom: 12,
-        center: miniMapCenter, // Usa um centro fixo (não usa a localização atual)
-        streetViewControl: false, // Desabilita o controle de Street View
-        zoomControl: false, // Desabilita o controle de zoom (remover botão de zoom)
-        mapTypeId: google.maps.MapTypeId.ROADMAP, // Define o tipo de mapa como o padrão
-        mapTypeControl: false, // Desabilita a opção de alternar para o satélite
-        fullscreenControl: false, // Desabilita o controle de tela cheia
-        gestureHandling: 'greedy', // Remove gestos de rotação e arraste de mapa
+        center: miniMapCenter,
+        streetViewControl: false,
+        zoomControl: false,
+        mapTypeId: google.maps.MapTypeId.ROADMAP,
+        mapTypeControl: false,
+        fullscreenControl: false,
+        gestureHandling: 'greedy',
         clickableIcons: false,
-        styles: [ // Remove pontos de interesse (POIs)
+        styles: [
           {
             featureType: "poi",
             elementType: "labels",
             stylers: [
               {
-                visibility: "off" // Esconde os POIs (pontos de interesse)
+                visibility: "off"
               }
             ]
           }
         ]
       });
 
-      // Variável para armazenar o marcador
       let currentMarker = null;
-
-      // Variável para armazenar a localização do marcador
       let markerLocation = null;
 
-      // Evento de clique no mini mapa para adicionar marcador
       google.maps.event.addListener(map, 'click', function(event) {
         if (document.getElementById('map').style.height === '60vh') {
-          // Se o mini mapa estiver cobrindo a tela, não permite adicionar novos marcadores
           return;
         }
 
         const clickedLocation = event.latLng;
 
-        // Se já houver um marcador, remova-o
         if (currentMarker) {
-          currentMarker.setMap(null); // Remove o marcador antigo
+          currentMarker.setMap(null);
         }
 
-        // Adiciona um novo marcador no local do clique
         currentMarker = new google.maps.Marker({
           position: clickedLocation,
           map: map,
@@ -120,7 +105,6 @@ function initMap() {
         } 
         });
 
-        // Armazena a localização do marcador
         markerLocation = clickedLocation;
 
         // Exibe o botão de confirmação
@@ -128,7 +112,7 @@ function initMap() {
       });
 
       // Função para calcular a distância Haversine entre dois pontos
-      function haversineDistance(lat1, lon1, lat2, lon2) {
+      function calcularDistanciaDosPontos(lat1, lon1, lat2, lon2) {
         const R = 6371; // Raio da Terra em quilômetros
         const dLat = (lat2 - lat1) * Math.PI / 180;
         const dLon = (lon2 - lon1) * Math.PI / 180;
@@ -140,44 +124,54 @@ function initMap() {
         
 
         const line = new google.maps.Polyline({
-            path: [markerLocation, streetViewLocation], // Define os pontos de início e fim
-            geodesic: true, // Utiliza uma linha geodésica
-            strokeColor: "#000000", // Cor da linha (vermelho)
-            strokeOpacity: 0.6, // Opacidade da linha
-            strokeWeight: 4, // Espessura da linha
+            path: [markerLocation, streetViewLocation],
+            geodesic: true,
+            strokeColor: "#000000",
+            strokeOpacity: 0.6,
+            strokeWeight: 4,
           });
 
         line.setMap(map)
-          
-        return distance;
-
+        return distance
       }
 
-      // Ação do botão de confirmação
+      function calcularPontuacao(km) {
+        if (km >= 12){
+          return 0
+        } else if (km >= 0.08){
+          return (100 - km*100 / 12)
+        } else {
+          return 100
+        }
+      }
+
       document.getElementById('confirm-button').addEventListener('click', function() {
         if (markerLocation) {
           const markerLat = markerLocation.lat();
           const markerLng = markerLocation.lng();
 
-          // Calcula a distância entre o marcador e a localização do Street View
-          const distance = haversineDistance(markerLat, markerLng, streetViewLocation.lat, streetViewLocation.lng);
+          const distance = calcularDistanciaDosPontos(markerLat, markerLng, streetViewLocation.lat, streetViewLocation.lng);
           console.log("Distância entre o marcador e o Street View:", distance.toFixed(2), "km");
+          let pontos = calcularPontuacao(distance)
+          console.log(pontos)
+          document.querySelector('.barra').style = `background: linear-gradient(90deg, #1dc304 ${pontos}%, #f1f7e9 ${pontos}%)`
+          document.getElementById('pintos').innerHTML = (pontos*5000/100).toFixed(0) + ' pontos '
 
-          // Exibe a distância no card
-          document.getElementById('distance-result').innerText = "Distância entre os pontos: " + distance.toFixed(2) + " km";
+          if(distance >= 1){
+            document.getElementById('distance-result').innerText = "Distância entre os pontos: " + distance.toFixed(2) + " km";
+          } else {
+            document.getElementById('distance-result').innerText = "Distância entre os pontos: " + (distance*1000).toFixed(0) + " m";
+          }
 
-          // Exibe o card de resultado
-          document.getElementById('telaFinal').style.display = 'block';
+          document.getElementById('telaFinal').style.display = 'flex';
 
-          // Expande o mini mapa para cobrir toda a tela
           document.getElementById('map').style = 'height: 60vh; width:100vw;top:0';
+          document.getElementById('logo').style = 'bottom: 12px; left: 12px; width: 128px'
 
-          // Oculta o botão de confirmação após a escolha
           document.getElementById('confirm-button').style.display = 'none';
           document.getElementById('voltarHome').style.display = 'none';
           streetView.setVisible(false)
 
-          // Adiciona os dois marcadores no mapa principal
           new google.maps.Marker({
             position: streetViewLocation,
             map: map,
@@ -189,17 +183,17 @@ function initMap() {
           });
 
           currentMarker.setTitle('Chute')
-          
 
         } else {
           alert("Por favor, adicione um marcador primeiro.");
         }
       });
 
-      // Vincula o Street View ao mapa principal
+      document.getElementById('next').addEventListener('click', ()=>{
+        window.location.reload()
+      })
+
       map.setStreetView(streetView);
     });
   }
-
-  // Inicializa o mapa e o Street View ao carregar a página
   window.onload = initMap;
