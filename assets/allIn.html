@@ -1,4 +1,202 @@
-function initMap() {
+<!DOCTYPE html>
+<html>
+  <head>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@1,14..32,100..900&family=Lora:ital,wght@0,400..700;1,400..700&family=Parkinsans:wght@300..800&family=Playfair+Display:ital,wght@1,400..900&family=Ubuntu:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400;1,500;1,700&display=swap" rel="stylesheet">
+
+
+    <title>Google Maps with Valid Street View</title>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA2SUPO4R5ROu1bJelmtZ6D3SEIbJJNxJU"></script>
+    <style>
+        #map {
+  height: 200px;
+  width: 200px;
+  position: absolute;
+  bottom: 20px;
+  right: 10px;
+  z-index: 2;
+  transition: all 0.3s ease-in-out;
+
+  border: rgb(144, 21, 160) solid 3px;
+    box-shadow: 0 0 8px 2px rgb(144, 21, 160);
+}
+
+#map:hover {
+  height: 640px;
+  width: 640px;
+}
+
+#street-view {
+  height: 100%;
+  width: 100%;
+}
+
+
+#confirm-button {
+  position: fixed; 
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 3;
+  background-color: rgba(102, 29, 197, 0.89);
+  color: white;
+  border: 4px solid rgba(75, 9, 161, 0.89);
+  padding: 10px 20px;
+  font-size: 16px;
+  cursor: pointer;
+  display: none;
+  transition: 0.25s all;
+  font-family: "Parkinsans", sans-serif;
+}
+
+#confirm-button:hover {
+  background-color: rgba(75, 9, 161, 0.89);
+  scale: 1.1;
+}
+
+#distance-card {
+  color: aliceblue;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  z-index: 3;
+  text-align: center;
+}
+
+#telaFinal{
+  position: fixed;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  background-color: rgb(17, 1, 46);
+  width: 100vw;
+  height: 40vh;
+  z-index: 3;
+  bottom: 0;
+}
+
+.barra{
+  width: 640px;
+  height: 16px;
+  background: linear-gradient(90deg, #1dc304 100%, #f1f7e9 100%);
+  border-radius: 16px;
+}
+
+#logo{
+  position: fixed;
+  z-index: 4;
+  bottom: -12px;
+  left: 0px;
+  width: 100px;
+  transition: 1s all;
+}
+
+
+#voltarHome{
+  position: fixed;
+  top: 12px;
+  left: 12px;
+  border-radius: 100%;
+  z-index: 2;
+  transition: 0.25s all;
+  border: 4px solid rgba(75, 9, 161, 0.89);
+  background: #ffffff50;
+  
+}
+
+#voltarHome img{
+  width: 64px;
+  height: 64px;
+}
+
+#voltarHome:hover{
+  scale: 1.1;
+  background-color: rgba(109, 33, 208, 0.5);
+}
+
+#timer{
+  position: fixed;
+  padding: 12px;
+  z-index: 3;
+  top: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  border:3px solid rgba(75, 9, 161, 0.89);
+  background: #ffffff50;
+  font-size: 24px;
+  font-weight: 800;
+}
+
+
+#next {
+  display: inline-block;
+  padding: 0.9rem 1.8rem;
+  font-size: 16px;
+  font-weight: 700;
+  color: white;
+  border: 3px solid rgba(75, 9, 161, 0.89);
+  cursor: pointer;
+  position: relative;
+  background-color: transparent;
+  text-decoration: none;
+  overflow: hidden;
+  z-index: 1;
+  font-family: "Parkinsans", sans-serif;
+  font-optical-sizing: auto;
+  font-style: normal;
+ }
+ 
+ #next::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgb(75, 9, 161, 0.89);
+  transform: translateX(-100%);
+  transition: all .3s;
+  z-index: -1;
+ }
+ 
+ #next:hover::before {
+  transform: translateX(0);
+
+}
+
+html, body {
+  font-family: "Parkinsans", sans-serif;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+    </style>
+  </head>
+  <body>
+    <div id="map"></div>
+    <div id="street-view"></div>
+    <img src="campoGuessr.png" id="logo">
+    <button id="confirm-button">Confirmar Localização</button> <!-- Botão de confirmação -->
+    <button id='voltarHome'>
+      <img src="finish.png" alt="">
+    </button>
+    <!-- <span id="timer">00</span> -->
+
+    <div id="telaFinal">
+      <div id="distance-card">
+        <h1>Pontuação</h1>
+        <span class="barra"></span>
+        <h2 id="pintos">5000</h2>
+        <p id="distance-result">A distância será exibida aqui.</p>
+        <button id="next">Próximo Jogo</button>
+      </div>
+    </div>
+    <script>
+        function initMap() {
     const streetViewService = new google.maps.StreetViewService();
 
 
@@ -100,7 +298,7 @@ function initMap() {
           map: map,
           title: 'Novo Marcador',
           icon:{
-            url: 'assets/redPill.png',
+            url: 'redPill.png',
             scaledSize: new google.maps.Size(48, 48)
         } 
         });
@@ -183,7 +381,7 @@ function initMap() {
             map: map,
             title: 'Street View',
             icon:{
-                url: 'assets/bluePill.png',
+                url: 'bluePill.png',
                 scaledSize: new google.maps.Size(48, 48)
             }    
           });
@@ -203,3 +401,6 @@ function initMap() {
     });
   }
   window.onload = initMap;
+    </script>
+  </body>
+</html>
