@@ -100,7 +100,7 @@ function initMap() {
           map: map,
           title: 'Novo Marcador',
           icon:{
-            url: 'assets/images/redPill.png',
+            url: 'images/redPill.png',
             scaledSize: new google.maps.Size(48, 48)
         } 
         });
@@ -183,7 +183,7 @@ function initMap() {
             map: map,
             title: 'Street View',
             icon:{
-                url: 'assets/images/bluePill.png',
+                url: 'images/bluePill.png',
                 scaledSize: new google.maps.Size(48, 48)
             }    
           });
