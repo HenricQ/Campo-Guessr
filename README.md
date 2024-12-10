@@ -1,4 +1,4 @@
-<img src="assets/images/campoGuessr.png" alt="Logo" width="200" /> 
+<img src="campoGuessr.png" alt="Logo" width="200" /> 
 
 **Campo Guessr** é um jogo interativo inspirado no clássico GeoGuessr, mas com foco exclusivamente na cidade de Campo Grande, MS. O jogador é transportado para uma localização aleatória dentro dos limites da cidade por meio do Google Street View, e seu objetivo é explorar o local, observar os arredores e marcar no mapa onde acredita estar.
 
