@@ -1,6 +1,7 @@
 <img src="campoGuessr.png" alt="Logo" width="200" /> 
 
-# [Campo Guessr](https://henricq.github.io/Campo-Guessr/) 🌎🚩
+# [Clique aqui para jogar ***Campo Guessr***](https://henricq.github.io/Campo-Guessr/) 🌎🚩
+
 **Campo Guessr** é um jogo interativo inspirado no clássico GeoGuessr, mas com foco exclusivamente na cidade de Campo Grande, MS. O jogador é transportado para uma localização aleatória dentro dos limites da cidade por meio do Google Street View, e seu objetivo é explorar o local, observar os arredores e marcar no mapa onde acredita estar.
 
 ## Este jogo é perfeito para moradores, visitantes ou entusiastas que desejam testar seus conhecimentos sobre Campo Grande enquanto se divertem!
