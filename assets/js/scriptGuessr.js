@@ -145,11 +145,11 @@ function initMap() {
         }
       }
 
-      let time = 61
-      setInterval(()=>{
-        document.getElementById('timer').innerHTML = time
-        time -= 1
-      },1000)
+      // let time = 61
+      // setInterval(()=>{
+      //   document.getElementById('timer').innerHTML = time
+      //   time -= 1
+      // },1000)
 
       document.getElementById('confirm-button').addEventListener('click', function() {
         if (markerLocation) {
