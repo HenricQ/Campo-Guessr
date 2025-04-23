@@ -6,7 +6,7 @@ body{
     color: white;
     justify-content: center;
     align-items: center;
-    background: url(images/ponto_turistico_campogrande.jpg) no-repeat;
+    background: url(../images/ponto_turistico_campogrande.jpg) no-repeat;
     background-size: 100vw 100vh;
     overflow: hidden;
     backdrop-filter: blur(4px);
