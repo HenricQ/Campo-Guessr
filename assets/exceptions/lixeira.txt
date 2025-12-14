@@ -1,0 +1,28 @@
+ // Defina uma área específica para gerar coordenadas aleatórias
+    const latMin = -20.604638;
+    const latMax = -20.334815;
+    const lngMin = -54.482560;
+    const lngMax = -54.925055;
+
+
+    function getRandomLocation() {
+      const lati = Math.random() * (latMax - latMin) + latMin;
+      const lngi = Math.random() * (lngMax - lngMin) + lngMin;
+      return { lat: lati, lng: lngi };
+    }
+
+
+function getRandomLocationInCircle(centerLat, centerLng, radiusKm) {
+        const earthRadius = 6371;
+        const angle = Math.random() * 2 * Math.PI;
+  
+
+        const distance = Math.sqrt(Math.random()) * radiusKm;
+        const deltaLat = distance / earthRadius;
+        const deltaLng = distance / (earthRadius * Math.cos((Math.PI * centerLat) / 180));
+
+        const randomLat = centerLat + deltaLat * Math.sin(angle);
+        const randomLng = centerLng + deltaLng * Math.cos(angle);
+
+        return { lat: randomLat, lng: randomLng };
+    }

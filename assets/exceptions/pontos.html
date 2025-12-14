@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8" />
+<title>Visualizador de Polígono</title>
+<style>
+  html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+  }
+
+  #map {
+    width: 100%;
+    height: 100%;
+  }
+</style>
+</head>
+<body>
+
+<div id="map"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/earcut@2.2.4/dist/earcut.min.js"></script>
+<script>
+const polygonPoints = [
+  { lat: -20.565132, lng: -54.680576 },
+  { lat: -20.552136, lng: -54.675661 },
+  { lat: -20.537692, lng: -54.703675 },
+  { lat: -20.483368, lng: -54.770073 },
+  { lat: -20.473987, lng: -54.770376 },
+  { lat: -20.470992, lng: -54.734816 },
+  { lat: -20.452666, lng: -54.713872 },
+  { lat: -20.428064, lng: -54.671712 },
+  { lat: -20.416919, lng: -54.678062 },
+  { lat: -20.406422, lng: -54.646621 },
+  { lat: -20.390414, lng: -54.627415 },
+  { lat: -20.384819, lng: -54.588008 },
+  { lat: -20.370298, lng: -54.569131 },
+  { lat: -20.377116, lng: -54.536187 },
+  { lat: -20.403504, lng: -54.507935 },
+  { lat: -20.445297, lng: -54.503092 },
+  { lat: -20.448021, lng: -54.513981 },
+  { lat: -20.469029, lng: -54.517478 },
+  { lat: -20.491103, lng: -54.550681 },
+  { lat: -20.503948, lng: -54.554511 },
+  { lat: -20.523706, lng: -54.565926 },
+  { lat: -20.538777, lng: -54.572912 },
+  { lat: -20.558521, lng: -54.563647 },
+  { lat: -20.570928, lng: -54.572135 },
+];
+
+function initMap() {
+  const map = new google.maps.Map(document.getElementById("map"), {
+    mapTypeId: "hybrid",
+    streetViewControl: false,
+    fullscreenControl: false
+  });
+
+  // Polígono
+  const polygon = new google.maps.Polygon({
+    paths: polygonPoints,
+    strokeColor: "#00e5ff",
+    strokeOpacity: 0.9,
+    strokeWeight: 3,
+    fillColor: "#00e5ff",
+    fillOpacity: 0.1
+  });
+  polygon.setMap(map);
+
+  // Ajusta o zoom
+  const bounds = new google.maps.LatLngBounds();
+  polygonPoints.forEach(p => bounds.extend(p));
+  map.fitBounds(bounds);
+
+  // 🔥 GERA 30 PONTOS ALEATÓRIOS
+  const randomPoints = generateRandomPointsInPolygon(polygonPoints, 30);
+
+  randomPoints.forEach(p => {
+    new google.maps.Marker({
+      position: p,
+      map,
+      icon: {
+        path: google.maps.SymbolPath.BACKWARD_CLOSED_ARROW,
+        scale: 5,
+        fillColor: "#fff",
+        fillOpacity: 0.5,
+        strokeWeight: 2,
+        strokeColor: "#000000"
+      }
+    });
+  });
+}
+
+/* ===============================
+   LÓGICA DE SORTEIO (PROFISSIONAL)
+   =============================== */
+
+function generateRandomPointsInPolygon(points, count) {
+  // flatten para earcut
+  const flat = points.flatMap(p => [p.lat, p.lng]);
+  const indices = earcut(flat);
+
+  function pt(i) {
+    return { lat: flat[2*i], lng: flat[2*i+1] };
+  }
+
+  function area(a, b, c) {
+    return Math.abs(
+      (a.lat * (b.lng - c.lng) +
+       b.lat * (c.lng - a.lng) +
+       c.lat * (a.lng - b.lng)) / 2
+    );
+  }
+
+  // monta triângulos
+  const triangles = [];
+  let totalArea = 0;
+
+  for (let i = 0; i < indices.length; i += 3) {
+    const A = pt(indices[i]);
+    const B = pt(indices[i+1]);
+    const C = pt(indices[i+2]);
+    const ar = area(A, B, C);
+    totalArea += ar;
+    triangles.push({ A, B, C, ar });
+  }
+
+  // sorteia pontos
+  const result = [];
+
+  for (let i = 0; i < count; i++) {
+    let r = Math.random() * totalArea;
+    let t;
+
+    for (const tri of triangles) {
+      r -= tri.ar;
+      if (r <= 0) {
+        t = tri;
+        break;
+      }
+    }
+
+    let r1 = Math.random();
+    let r2 = Math.random();
+    if (r1 + r2 > 1) {
+      r1 = 1 - r1;
+      r2 = 1 - r2;
+    }
+
+    result.push({
+      lat: t.A.lat + r1 * (t.B.lat - t.A.lat) + r2 * (t.C.lat - t.A.lat),
+      lng: t.A.lng + r1 * (t.B.lng - t.A.lng) + r2 * (t.C.lng - t.A.lng)
+    });
+  }
+
+  return result;
+}
+</script>
+
+
+<script
+  src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAa5PQ2DNagmwN_jftcXOgwnjR-aJR3ojI&callback=initMap"
+  async
+  defer
+></script>
+
+</body>
+</html>
